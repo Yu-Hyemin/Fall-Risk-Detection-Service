@@ -24,4 +24,9 @@
 ![Fall Detection Result](Result%20video/Fall%20Result%20video.gif)
 ![NonFall Detection Result](Result%20video/NonFall%20Result%20video.gif)
 
+---
+
+## 🧑‍🤝‍🧑함께한 사람
+🦎 [이현주](https://github.com/ruru-kor) <br>
+🏃🏻‍♀️ [유혜민](https://github.com/Yu-Hyemin)
 
