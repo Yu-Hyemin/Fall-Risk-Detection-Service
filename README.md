@@ -15,7 +15,7 @@
 <br>
 
 ## 📓 개발 일지
-<a href="https://so-fast.tistory.com/entry/%EB%82%99%EC%83%81-%EA%B0%90%EC%A7%80-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-2024%EB%85%84-12%EC%9B%94-16%EC%9D%BC%EC%9B%94"><img src="https://img.shields.io/badge/이현주's Tistory-000000?style=for-the-badge&logo=tistory&logoColor=white"></a><br>
+<a href="https://so-fast.tistory.com/category/Project/%EB%82%99%EC%83%81"><img src="https://img.shields.io/badge/이현주's Tistory-000000?style=for-the-badge&logo=tistory&logoColor=white"></a><br>
 <a href="https://so-fast.tistory.com/entry/%EB%82%99%EC%83%81-%EA%B0%90%EC%A7%80-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-2024%EB%85%84-12%EC%9B%94-16%EC%9D%BC%EC%9B%94"><img src="https://img.shields.io/badge/유혜민's Blog-03C75A?style=for-the-badge&logo=naver&logoColor=white"></a>
 
 ---
