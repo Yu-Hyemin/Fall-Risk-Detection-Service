@@ -22,7 +22,8 @@
 ## 🎥 Yolov와 Mediapipe 모델 비교
 
 ### 낙상
-![Fall Detection Result](Result video/Fall Result video.gif)
+
+![Fall Detection Result](Result%20video/Fall%20Result%20video.gif)
 
 
 
