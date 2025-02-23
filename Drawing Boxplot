@@ -1,0 +1,23 @@
+# 낙상 임계값 추출 코드
+
+import json
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+
+# JSON 파일 로드
+data = json.load(open('/content/output_yolo.json'))
+df = pd.json_normalize(data)
+
+df['center_x'] = (df['landmark_0_x'] + df['landmark_5_x'] + df['landmark_6_x']) / 3
+df['center_y'] = (df['landmark_0_y'] + df['landmark_5_y'] + df['landmark_6_y']) / 3
+
+df['speed'] = (df['center_x'].diff()**2 + df['center_y'].diff()**2)**0.5
+
+# 박스플롯 그리기
+plt.figure(figsize=(5, 7))
+sns.boxplot(y=df['speed'])
+plt.title('Boxplot of Speed')
+plt.ylabel('Speed')
+plt.show()
