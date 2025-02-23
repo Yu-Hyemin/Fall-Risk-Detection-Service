@@ -1,0 +1,55 @@
+import cv2
+import json
+import numpy as np
+from ultralytics import YOLO
+
+yolo_model = YOLO('yolov8n-pose.pt')
+
+# 동영상 경로
+input_video = '/content/drive/MyDrive/PJ/00014_H_A_FY_C4.mp4'
+output_video = '/content/output_yolo.mp4'
+json_output = '/content/output_yolo.json'
+
+# 동영상 읽기 및 저장 설정
+cap = cv2.VideoCapture(input_video)
+out = cv2.VideoWriter(
+    output_video,
+    cv2.VideoWriter_fourcc(*'mp4v'),
+    int(cap.get(cv2.CAP_PROP_FPS)),
+    (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+)
+
+# 랜드마크 정의 (코, 왼쪽 어깨, 오른쪽 어깨)
+INTERESTED_LANDMARKS = [0, 5, 6]
+
+landmarks_data = []
+frame_idx = 0
+
+while cap.isOpened():
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    results = yolo_model(frame)
+
+    for result in results:
+        # JSON저장 파일 양식
+        frame_data = {"frame_idx": frame_idx}
+        if result.keypoints is not None and result.keypoints.xyn.numpy().size > 0:
+            for idx in INTERESTED_LANDMARKS:
+                frame_data[f'landmark_{idx}_x'] = float(result.keypoints.xyn[0][idx][0])
+                frame_data[f'landmark_{idx}_y'] = float(result.keypoints.xyn[0][idx][1])
+            landmarks_data.append(frame_data)
+
+
+
+    out.write(frame)
+    frame_idx += 1
+
+cap.release()
+out.release()
+
+with open(json_output, 'w') as f:
+    json.dump(landmarks_data, f)
+
+print(f"처리가 완료되었습니다! 결과 파일: {output_video}, 랜드마크 데이터: {json_output}")
