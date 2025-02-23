@@ -3,14 +3,14 @@ import json
 import numpy as np
 from ultralytics import YOLO
 
-yolo_model = YOLO('yolov8n-pose.pt')
+# YOLO 모델
+model = YOLO('yolov8n-pose.pt')
 
 # 동영상 경로
-input_video = '/content/drive/MyDrive/PJ/00014_H_A_FY_C4.mp4'
-output_video = '/content/output_yolo.mp4'
+input_video = '/content/00015_H_A_SY_C5.mp4'
+output_video = '/content/output_yolo_track.mp4'
 json_output = '/content/output_yolo.json'
 
-# 동영상 읽기 및 저장 설정
 cap = cv2.VideoCapture(input_video)
 out = cv2.VideoWriter(
     output_video,
@@ -30,9 +30,10 @@ while cap.isOpened():
     if not ret:
         break
 
-    results = yolo_model(frame)
+    results = model.track(frame, persist=True)
 
     for result in results:
+        frame = result.plot()
         # JSON저장 파일 양식
         frame_data = {"frame_idx": frame_idx}
         if result.keypoints is not None and result.keypoints.xyn.numpy().size > 0:
@@ -41,8 +42,6 @@ while cap.isOpened():
                 frame_data[f'landmark_{idx}_y'] = float(result.keypoints.xyn[0][idx][1])
             landmarks_data.append(frame_data)
 
-
-
     out.write(frame)
     frame_idx += 1
 
@@ -50,6 +49,6 @@ cap.release()
 out.release()
 
 with open(json_output, 'w') as f:
-    json.dump(landmarks_data, f)
+    json.dump(landmarks_data, f, indent=4)
 
-print(f"처리가 완료되었습니다! 결과 파일: {output_video}, 랜드마크 데이터: {json_output}")
+print(f'** 동영상 처리 완료 **')
