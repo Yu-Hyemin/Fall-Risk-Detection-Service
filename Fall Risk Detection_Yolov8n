@@ -1,0 +1,101 @@
+import cv2
+import numpy as np
+from ultralytics import YOLO
+
+# YOLO-Pose 모델 로드
+yolo_model = YOLO('yolov8n-pose.pt')
+
+# 동영상 경로 설정
+input_video = '/content/00015_H_A_SY_C5.mp4' # 낙상 동영상
+# input_video = '/content/00005_H_A_N_C5.mp4' # 비낙상 동영상
+output_video = '/content/output_yolo_pose_0.02.mp4'
+
+# 동영상 읽기 및 저장 설정
+cap = cv2.VideoCapture(input_video)
+out = cv2.VideoWriter(
+    output_video,
+    cv2.VideoWriter_fourcc(*'mp4v'),
+    int(cap.get(cv2.CAP_PROP_FPS)),
+    (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+)
+
+# 변수 초기화
+prev_centers = {}  # 이전 프레임 중심 좌표 저장
+danger_frame_count = 0  # 위험 상태 프레임수 저장
+fall_detected = set()  # 낙상 상태로 기록된 객체 ID
+frame_idx = 0
+
+# 속도 임계값 설정
+danger_speed_threshold = 0.02  # 낙상위험 속도 임계값
+move_speed_threshold = 0.018 # 낙상->정상 속도 임계값
+danger_frame_threshold = 3  # 낙상 판단 프레임 수 (FPS 기준)
+
+while cap.isOpened():
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    # YOLO Pose 추적 수행
+    results = yolo_model.track(frame, persist=True)
+
+    # 감지된 객체가 있는지 확인
+    if results[0] is not None and results[0].boxes.id is not None:
+        for box, landmark_5, landmark_6, track_id in zip(
+            results[0].boxes.xyxy,  # 바운딩 박스
+            [results[0].keypoints.xyn[0, 5]],  # 오른쪽 어깨(정규화)
+            [results[0].keypoints.xyn[0, 6]],  # 왼쪽 어깨(정규화)
+            results[0].boxes.id  # ID
+        ):
+            track_id = int(track_id)  # ID를 정수로 변환
+
+            print(f"landmark_5: {landmark_5}")
+            print(f"landmark_6: {landmark_6}")
+
+            # 바운딩 박스 좌표 및 중심 좌표 계산
+            x1, y1, x2, y2 = map(int, box)
+            center_x = (landmark_5[0] + landmark_6[0]) / 2
+            center_y = (landmark_5[1] + landmark_6[1]) / 2
+
+            # 속도 계산 (이전 중심 좌표와 비교)
+            if prev_centers:
+                prev_x, prev_y = prev_centers
+                speed = np.sqrt((center_x - prev_x)**2 + (center_y - prev_y)**2)
+            else:
+                speed = 0  # 첫 프레임에서는 속도를 0으로 설정
+
+            # 위험 상태가 일정 시간 지속되면 낙상 처리
+            if danger_frame_count < danger_frame_threshold:
+                # 상태 판별
+                if speed <= danger_speed_threshold:  # 정상
+                    state = "Normal"
+                    color = (0, 255, 0)  # 초록
+                elif speed > danger_speed_threshold:  # 위험
+                    state = "Danger"
+                    color = (255, 0, 0)  # 파란색
+                    danger_frame_count += 1  # 위험 상태 프레임 카운트
+
+            elif danger_frame_count >= danger_frame_threshold:
+                if speed < move_speed_threshold:
+                    state = "Fall"
+                    color = (0, 0, 255)  # 빨간색
+                elif speed >= move_speed_threshold:
+                    danger_frame_count = 0
+
+            # 바운딩 박스와 상태 텍스트 그리기
+            cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+            cv2.putText(frame, f"ID: {track_id} {state}", (x1, y1 - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+            cv2.circle(frame, (int(center_x * (frame.shape[1])), int(center_y * (frame.shape[0]))), 10, color, -1)
+
+            # 현재 중심 좌표 저장
+            prev_centers = center_x, center_y
+
+    # 결과를 출력 동영상에 저장
+    out.write(frame)
+    frame_idx += 1
+
+cap.release()
+out.release()
+
+print(f"처리가 완료되었습니다! 결과 파일: {output_video}")
+print(f"danger_frame_threshold: {danger_frame_count}")
