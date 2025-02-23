@@ -21,8 +21,14 @@
 ---
 ## 🎥 Yolov와 Mediapipe 모델 비교
 
-![Fall Detection Result](Result%20video/Fall%20Result%20video.gif)
-![NonFall Detection Result](Result%20video/NonFall%20Result%20video.gif)
+<p align="center">
+  <img src="Result%20video/Fall%20Result%20video.gif" alt="Fall Detection Result">
+</p>
+
+<p align="center">
+  <img src="Result%20video/NonFall%20Result%20video.gif" alt="NonFall Detection Result">
+</p>
+
 
 ---
 
