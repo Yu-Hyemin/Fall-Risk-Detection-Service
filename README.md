@@ -66,14 +66,3 @@
 
 ---
 
-## 🚀 **설치 및 실행 방법**
-```bash
-# 1. 저장소 클론
-git clone https://github.com/your-repo-name.git
-
-# 2. 환경 설정
-cd backend
-pip install -r requirements.txt
-
-# 3. 실행
-python main.py
